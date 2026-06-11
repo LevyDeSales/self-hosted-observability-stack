@@ -1,0 +1,13 @@
+services:
+  beszel-agent:
+    image: ${BESZEL_AGENT_IMAGE:-henrygd/beszel-agent:0.18.7}
+    container_name: observability-beszel-agent-${HOST_SLUG:?set HOST_SLUG}
+    restart: unless-stopped
+    network_mode: host
+    command:
+      - -k
+      - ${BESZEL_AGENT_KEY:?set BESZEL_AGENT_KEY}
+      - -l
+      - ${BESZEL_AGENT_LISTEN:?set BESZEL_AGENT_LISTEN}
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro

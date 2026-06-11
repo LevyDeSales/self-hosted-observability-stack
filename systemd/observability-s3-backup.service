@@ -1,0 +1,9 @@
+[Unit]
+Description=Observability push for S3-compatible backup freshness
+Wants=network-online.target
+After=network-online.target docker.service
+
+[Service]
+Type=oneshot
+EnvironmentFile=/etc/observability-stack/backup.env
+ExecStart=/usr/local/sbin/check-s3-backup-rclone.sh /etc/observability-stack/backup.env

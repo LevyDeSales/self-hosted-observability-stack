@@ -1,0 +1,20 @@
+services:
+  uptime-kuma:
+    image: ${UPTIME_KUMA_IMAGE:-louislam/uptime-kuma:2}
+    container_name: observability-uptime-kuma
+    restart: unless-stopped
+    environment:
+      TZ: ${TZ:-UTC}
+    volumes:
+      - uptime_kuma_data:/app/data
+    networks:
+      - dokploy-network
+    expose:
+      - "3001"
+
+volumes:
+  uptime_kuma_data:
+
+networks:
+  dokploy-network:
+    external: true

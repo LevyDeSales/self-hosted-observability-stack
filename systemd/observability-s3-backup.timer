@@ -1,0 +1,11 @@
+[Unit]
+Description=Run S3 backup freshness monitoring push hourly
+
+[Timer]
+OnBootSec=15m
+OnUnitActiveSec=1h
+AccuracySec=60s
+Unit=observability-s3-backup.service
+
+[Install]
+WantedBy=timers.target

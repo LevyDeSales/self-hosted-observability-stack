@@ -1,0 +1,11 @@
+[Unit]
+Description=Run critical container monitoring push every minute
+
+[Timer]
+OnBootSec=2m
+OnUnitActiveSec=60s
+AccuracySec=10s
+Unit=observability-containers.service
+
+[Install]
+WantedBy=timers.target
