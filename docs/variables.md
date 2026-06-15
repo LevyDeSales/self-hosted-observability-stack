@@ -12,7 +12,7 @@ Este documento lista variaveis usadas pelos exemplos.
 | `BESZEL_AGENT_IMAGE` | nao | Imagem do Beszel Agent. |
 | `BESZEL_APP_URL` | sim | URL publica do Beszel Hub. |
 | `BESZEL_AGENT_KEY` | sim | Chave publica cadastrada no Beszel. |
-| `BESZEL_AGENT_LISTEN` | sim | IP:porta onde o agent local escuta. |
+| `BESZEL_AGENT_LISTEN` | sim | IP privado/Tailscale e porta onde o agent local escuta. |
 
 ## remote-agent.env
 
@@ -21,7 +21,7 @@ Este documento lista variaveis usadas pelos exemplos.
 | `HOST_SLUG` | sim | Sufixo do container remoto. |
 | `BESZEL_AGENT_IMAGE` | nao | Imagem do Beszel Agent. |
 | `BESZEL_AGENT_KEY` | sim | Chave publica cadastrada no Beszel. |
-| `BESZEL_AGENT_LISTEN` | sim | IP privado e porta do host remoto. |
+| `BESZEL_AGENT_LISTEN` | sim | IP privado/Tailscale e porta do host remoto. |
 
 ## containers.env
 

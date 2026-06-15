@@ -33,6 +33,7 @@ Antes de instalar, obtenha:
 | Host central | `vps-panel` |
 | IP privado do host central | `10.0.0.1` |
 | Hosts remotos e IPs privados | `vps-app = 10.0.0.2` |
+| Hosts no mesmo provedor/private network? | se nao, usar Tailscale |
 | Provedor DNS/borda | Cloudflare, Nginx, Traefik, Caddy |
 | SMTP de alertas | host, porta, usuario, remetente |
 | Apps publicos a monitorar | FQDN, status esperado, intervalo |
@@ -44,14 +45,15 @@ Antes de instalar, obtenha:
 1. Preencher [docs/templates/host-inventory.md](docs/templates/host-inventory.md).
 2. Validar pre-requisitos em [docs/installation.md](docs/installation.md).
 3. Clonar ou atualizar este repo nos hosts que receberao arquivos.
-4. Configurar DNS e protecao de borda.
-5. Subir Uptime Kuma com [examples/docker-compose/uptime-kuma.dokploy.yml](examples/docker-compose/uptime-kuma.dokploy.yml).
-6. Subir Beszel Hub + Agent local com [examples/docker-compose/beszel-hub-agent.dokploy.yml](examples/docker-compose/beszel-hub-agent.dokploy.yml).
-7. Subir um Beszel Agent por host remoto com [examples/docker-compose/beszel-agent.remote.yml](examples/docker-compose/beszel-agent.remote.yml).
-8. Criar monitores HTTP/TLS e push no Uptime Kuma.
-9. Instalar scripts e timers em [scripts](scripts) e [systemd](systemd).
-10. Criar sistemas e alertas no Beszel.
-11. Rodar a secao de aceite de [docs/installation.md](docs/installation.md).
+4. Confirmar private network comum; se nao existir, instalar Tailscale.
+5. Configurar DNS e protecao de borda.
+6. Subir Uptime Kuma com [examples/docker-compose/uptime-kuma.dokploy.yml](examples/docker-compose/uptime-kuma.dokploy.yml).
+7. Subir Beszel Hub + Agent local com [examples/docker-compose/beszel-hub-agent.dokploy.yml](examples/docker-compose/beszel-hub-agent.dokploy.yml).
+8. Subir um Beszel Agent por host remoto com [examples/docker-compose/beszel-agent.remote.yml](examples/docker-compose/beszel-agent.remote.yml).
+9. Criar monitores HTTP/TLS e push no Uptime Kuma.
+10. Instalar scripts e timers em [scripts](scripts) e [systemd](systemd).
+11. Criar sistemas e alertas no Beszel.
+12. Rodar a secao de aceite de [docs/installation.md](docs/installation.md).
 
 ## Padrao de resposta ao finalizar
 

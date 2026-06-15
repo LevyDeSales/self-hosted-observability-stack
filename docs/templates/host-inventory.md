@@ -29,6 +29,14 @@
 | --- | --- | --- | --- | --- | --- |
 |  |  |  |  |  |  |
 
+## Overlay network
+
+Preencha quando as VPSs nao compartilharem private network do mesmo provedor.
+
+| Host | Provider | Tailscale IP | Tailscale hostname | Beszel listen |
+| --- | --- | --- | --- | --- |
+|  |  |  |  |  |
+
 ## Dominios
 
 | FQDN | Servico | Host | Protecao | Observacoes |

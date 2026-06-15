@@ -63,7 +63,7 @@ Checks esperados:
 Conectividade do host central para agent remoto:
 
 ```bash
-nc -vz <remote-private-ip> 45876
+nc -vz <remote-private-or-tailscale-ip> 45876
 ```
 
 Conectividade publica deve falhar:
@@ -134,7 +134,7 @@ Erros comuns:
 Verifique:
 
 ```bash
-nc -vz <remote-private-ip> 45876
+nc -vz <remote-private-or-tailscale-ip> 45876
 docker logs --tail=100 observability-beszel-agent-<host-slug>
 ufw status numbered
 ```
@@ -145,6 +145,8 @@ Erros comuns:
 - Agent escutando no IP errado.
 - Firewall permite o IP publico mas bloqueia o privado.
 - Host central e remoto nao estao na mesma rede privada/VPN.
+- Se os hosts estao em provedores diferentes, confirme que Tailscale esta
+  ativo nos dois lados e use o IP `100.x.y.z` do host remoto no Beszel.
 
 ## Rotina semanal
 

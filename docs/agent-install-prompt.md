@@ -14,10 +14,12 @@ Instrucoes:
 1. Leia AGENTS.md primeiro.
 2. Leia docs/installation.md e docs/security.md antes de executar comandos.
 3. Pergunte somente os dados que nao conseguir inferir: dominios, hosts, IPs
-   privados, provider DNS, SMTP, containers criticos, destino de backup e
-   credenciais.
+   privados, se os hosts compartilham private network, provider DNS, SMTP,
+   containers criticos, destino de backup e credenciais.
 4. Nunca grave segredos no Git ou em mensagens finais.
-5. Use rede privada/VPN para Beszel Agent. Nao abra 45876/tcp publicamente.
+5. Use rede privada/VPN para Beszel Agent. Se as VPSs nao estiverem na mesma
+   private network ou forem de provedores diferentes, instale Tailscale para a
+   observabilidade. Nao abra 45876/tcp publicamente.
 6. Use os exemplos em examples/docker-compose e examples/env como base.
 7. Instale scripts e timers de systemd conforme docs/installation.md.
 8. Ao final, rode os checks de aceite em docs/installation.md.
@@ -30,6 +32,6 @@ Nao finalize ate comprovar:
 - Beszel acessivel no dominio protegido.
 - Todos os hosts aparecem UP no Beszel.
 - Monitores HTTP/TLS, containers e backup aparecem UP no Uptime Kuma.
-- Porta 45876/tcp falha pelo IP publico e funciona pelo IP privado.
+- Porta 45876/tcp falha pelo IP publico e funciona pelo IP privado/Tailscale.
 - Nenhum segredo entrou no repositorio.
 ```

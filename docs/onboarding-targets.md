@@ -6,6 +6,7 @@ criticos.
 ## Checklist
 
 - [ ] O host tem IP privado ou VPN ate o host central.
+- [ ] Se nao houver private network comum, Tailscale foi instalado no host central e no host remoto.
 - [ ] O Beszel Agent escuta somente em IP privado.
 - [ ] O firewall permite `45876/tcp` somente do host central.
 - [ ] O sistema foi cadastrado no Beszel.
@@ -47,6 +48,21 @@ BESZEL_AGENT_KEY="<public-key-do-hub>"
 BESZEL_AGENT_LISTEN="10.0.0.2:45876"
 ```
 
+Se o host remoto nao estiver na mesma private network do host central, instale
+Tailscale nos dois hosts e use o IP Tailscale:
+
+```bash
+curl -fsSL https://tailscale.com/install.sh | sh
+tailscale up
+tailscale ip -4
+```
+
+Exemplo com Tailscale:
+
+```text
+BESZEL_AGENT_LISTEN="100.x.y.20:45876"
+```
+
 Subir:
 
 ```bash
@@ -62,10 +78,18 @@ ufw allow proto tcp from 10.0.0.1 to any port 45876 \
   comment "beszel agent from central host"
 ```
 
+Firewall com Tailscale:
+
+```bash
+ufw allow in on tailscale0 to any port 45876 proto tcp \
+  comment "beszel agent over tailscale"
+```
+
 Aceite:
 
 ```bash
 ssh <central-host> 'nc -vz 10.0.0.2 45876'
+ssh <central-host> 'nc -vz <remote-tailscale-ip> 45876'
 nc -vz <public-ip> 45876
 ```
 

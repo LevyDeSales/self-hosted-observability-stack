@@ -11,6 +11,7 @@ URLs como superficie administrativa.
 | Uptime Kuma | Proteger painel com Access/VPN/SSO. |
 | Beszel Hub | Proteger painel com Access/VPN/SSO. |
 | Beszel Agent | Permitir `45876/tcp` somente do host central por rede privada/VPN. |
+| Tailscale | Usar quando nao houver private network comum entre as VPSs. |
 | Push URLs | Guardar em arquivo `0600`; tratar como token. |
 | SMTP | Guardar senha em secret manager ou arquivo `0600`. |
 | Backups | Validar existencia sem expor access key no output. |
@@ -65,6 +66,15 @@ Host remoto:
 
 ```bash
 ufw allow proto tcp from <central-private-ip> to any port 45876
+ufw deny 45876/tcp
+ufw enable
+```
+
+Host remoto via Tailscale:
+
+```bash
+ufw allow in on tailscale0 to any port 45876 proto tcp \
+  comment "beszel agent over tailscale"
 ufw deny 45876/tcp
 ufw enable
 ```

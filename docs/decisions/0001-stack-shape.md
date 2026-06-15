@@ -18,6 +18,8 @@ Usar:
 - systemd timers para checks customizados.
 - rclone para validar backups remotos.
 - Cloudflare Access ou equivalente para proteger paineis.
+- Tailscale como fallback de rede privada quando os hosts nao estao na mesma
+  private network ou pertencem a provedores diferentes.
 
 ## Consequencias
 
@@ -34,6 +36,8 @@ Limitacoes:
 - Nao cobre tracing distribuido.
 - Alertas e dashboards sao mais simples que Prometheus/Grafana.
 - Parte da configuracao ainda passa pela UI dos apps.
+- Tailscale adiciona mais uma dependencia operacional quando nao existe
+  private network comum.
 
 ## Quando evoluir
 

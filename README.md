@@ -11,6 +11,7 @@ aplicacoes em VPSs com Docker Compose e Dokploy. A stack combina:
 - Beszel Agent em cada VPS, sempre preferindo rede privada.
 - systemd timers para checks customizados que reportam ao Uptime Kuma.
 - Cloudflare Access para proteger os paineis web.
+- Tailscale como fallback quando os hosts nao compartilham rede privada.
 - rclone para validar backups em S3 ou storage compativel.
 
 O objetivo e que voce possa enviar este repo a outro operador ou agente de IA e
@@ -79,6 +80,7 @@ praticas:
 | Borda | Cloudflare DNS/Proxy e Cloudflare Access |
 | Disponibilidade | Uptime Kuma |
 | Metricas | Beszel Hub + Beszel Agent |
+| Rede de agents | Private network do provedor ou Tailscale |
 | Checks customizados | Bash + systemd timers |
 | Backups | Qualquer destino validavel por rclone |
 | Segredos | Arquivos `0600` no host ou secret manager externo |
@@ -88,6 +90,8 @@ praticas:
 - Segredo nunca entra no Git.
 - Painel administrativo nao fica publico sem autenticacao forte.
 - Agente Beszel remoto escuta em IP privado ou VPN, nao na internet aberta.
+- Se as VPSs nao estiverem na mesma rede privada ou nem forem do mesmo
+  provedor, use Tailscale para criar a rede de observabilidade.
 - Push monitor tem token e deve ser limitado ao minimo necessario.
 - Backup so conta como OK quando existe em destino externo.
 - Exemplos sao pontos de partida, nao substitutos de inventario local.

@@ -53,7 +53,66 @@ cd "$REPO_DIR"
 
 Se voce publicou um fork, substitua a URL pelo fork.
 
-## 4. DNS e borda
+## 4. Rede privada ou Tailscale
+
+O Beszel Hub precisa conectar em cada Beszel Agent por TCP. Use uma destas
+opcoes:
+
+| Cenario | Padrao |
+| --- | --- |
+| VPSs no mesmo provedor e mesma private network | Use os private IPs do provedor. |
+| VPSs em provedores diferentes ou sem private network comum | Instale Tailscale nos hosts de observabilidade. |
+| Sem VPN nem private network | Nao publique `45876/tcp`; use apenas Uptime Kuma push ate configurar Tailscale ou outra VPN. |
+
+Para Tailscale, instale no host central e em cada host remoto:
+
+```bash
+curl -fsSL https://tailscale.com/install.sh | sh
+tailscale up
+tailscale status
+tailscale ip -4
+```
+
+Para instalacao automatizada, gere uma auth key no Tailscale e passe pelo
+ambiente do host, sem gravar no Git:
+
+```bash
+export TAILSCALE_AUTH_KEY="<tskey-auth-...>"
+tailscale up --auth-key "$TAILSCALE_AUTH_KEY" --hostname "$(hostname -s)"
+```
+
+Anote os IPs Tailscale:
+
+```text
+central_tailscale_ip = 100.x.y.10
+remote_tailscale_ip  = 100.x.y.20
+```
+
+Quando usar Tailscale, substitua os private IPs dos exemplos pelo IP Tailscale.
+No host remoto, o Beszel Agent deve escutar no IP Tailscale:
+
+```text
+BESZEL_AGENT_LISTEN="100.x.y.20:45876"
+```
+
+No firewall do host remoto, permita o agent somente pela interface Tailscale:
+
+```bash
+ufw allow in on tailscale0 to any port 45876 proto tcp \
+  comment "beszel agent over tailscale"
+ufw deny 45876/tcp
+```
+
+Valide a partir do host central:
+
+```bash
+nc -vz 100.x.y.20 45876
+nc -vz <remote-public-ip> 45876
+```
+
+O primeiro comando deve funcionar. O segundo deve falhar.
+
+## 5. DNS e borda
 
 Crie dois FQDNs:
 
@@ -75,7 +134,7 @@ https://monitor.example.com/api/push/*
 Essa excecao deve existir somente porque a URL de push ja contem token. Se voce
 puder rotear push por rede privada, prefira rede privada.
 
-## 5. Segredos no host
+## 6. Segredos no host
 
 Crie arquivos remotos com permissao restrita:
 
@@ -89,7 +148,7 @@ install -m 0600 /dev/null /etc/observability-stack/backup.env
 Use [examples/env/central.env.example](../examples/env/central.env.example) como
 base. Nao copie valores reais para o Git.
 
-## 6. Deploy Uptime Kuma
+## 7. Deploy Uptime Kuma
 
 No host central:
 
@@ -112,7 +171,7 @@ docker ps --filter name=observability-uptime-kuma \
 Depois acesse `https://monitor.example.com`, crie o admin e configure pelo
 menos um canal de notificacao.
 
-## 7. Deploy Beszel Hub e agent local
+## 8. Deploy Beszel Hub e agent local
 
 No host central:
 
@@ -144,7 +203,7 @@ ufw allow proto tcp from 172.16.0.0/12 to any port 45876 \
 Ajuste a origem para o CIDR real da rede Docker se voce preferir ser mais
 restritivo.
 
-## 8. Deploy Beszel Agent remoto
+## 9. Deploy Beszel Agent remoto
 
 Em cada host remoto, crie env e compose:
 
@@ -158,6 +217,8 @@ cp "$REPO_DIR/examples/docker-compose/beszel-agent.remote.yml" \
 
 Preencha `/etc/observability-stack/remote-agent.env` com base em
 [examples/env/remote-agent.env.example](../examples/env/remote-agent.env.example).
+Se estiver usando Tailscale, use o IP Tailscale do host remoto em
+`BESZEL_AGENT_LISTEN`.
 
 Suba:
 
@@ -167,11 +228,19 @@ docker compose --env-file /etc/observability-stack/remote-agent.env \
   -p observability-beszel-agent up -d
 ```
 
-Firewall no host remoto:
+Firewall no host remoto com private network do provedor:
 
 ```bash
 ufw allow proto tcp from 10.0.0.1 to any port 45876 \
   comment "beszel agent from central host"
+ufw status numbered
+```
+
+Firewall no host remoto com Tailscale:
+
+```bash
+ufw allow in on tailscale0 to any port 45876 proto tcp \
+  comment "beszel agent over tailscale"
 ufw status numbered
 ```
 
@@ -189,13 +258,13 @@ nc -vz <public-ip-remoto> 45876
 
 O teste publico deve falhar.
 
-## 9. Configurar Beszel
+## 10. Configurar Beszel
 
 No painel `https://metrics.example.com`:
 
 1. Crie o admin.
-2. Adicione o host central com IP privado e porta `45876`.
-3. Adicione cada host remoto com IP privado e porta `45876`.
+2. Adicione o host central com IP privado/Tailscale e porta `45876`.
+3. Adicione cada host remoto com IP privado/Tailscale e porta `45876`.
 4. Confirme que Docker stats aparecem.
 5. Crie alertas iniciais:
 
@@ -206,7 +275,7 @@ No painel `https://metrics.example.com`:
 | Memoria | `85%` | `5 min` |
 | Disco | `80%` | `5 min` |
 
-## 10. Configurar Uptime Kuma
+## 11. Configurar Uptime Kuma
 
 No painel `https://monitor.example.com`, crie:
 
@@ -218,7 +287,7 @@ No painel `https://monitor.example.com`, crie:
 
 Guarde as push URLs em arquivos `0600` no host alvo.
 
-## 11. Instalar timer de containers
+## 12. Instalar timer de containers
 
 No host onde os containers do app rodam:
 
@@ -254,7 +323,7 @@ Se o teste manual reportar UP no Uptime Kuma, habilite:
 systemctl enable --now observability-containers.timer
 ```
 
-## 12. Instalar timer de backup
+## 13. Instalar timer de backup
 
 No host que consegue ler o destino de backup:
 
@@ -288,7 +357,7 @@ Se o teste manual reportar UP no Uptime Kuma, habilite:
 systemctl enable --now observability-s3-backup.timer
 ```
 
-## 13. Aceite
+## 14. Aceite
 
 Antes de declarar a instalacao concluida:
 
@@ -296,7 +365,7 @@ Antes de declarar a instalacao concluida:
 curl -skI https://monitor.example.com
 curl -skI https://metrics.example.com
 curl -skI https://monitor.example.com/api/push/test
-nc -vz <remote-private-ip> 45876
+nc -vz <remote-private-or-tailscale-ip> 45876
 nc -vz <remote-public-ip> 45876
 systemctl list-timers | grep observability
 ```
@@ -306,6 +375,6 @@ Resultado esperado:
 - Uptime Kuma e Beszel acessiveis pelo dominio protegido.
 - `/api/push/*` responde sem exigir login interativo, se voce usa push externo.
 - Beszel ve todos os hosts.
-- Porta `45876` funciona por IP privado e falha por IP publico.
+- Porta `45876` funciona por IP privado/Tailscale e falha por IP publico.
 - Uptime Kuma mostra HTTP/TLS, containers e backup como UP.
 - Nenhum segredo foi gravado no repositorio.
