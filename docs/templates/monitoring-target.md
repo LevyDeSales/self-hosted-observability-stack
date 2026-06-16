@@ -2,6 +2,9 @@
 
 ## Identidade
 
+Use [../exposure-model.md](../exposure-model.md) para preencher o modelo de
+exposicao.
+
 | Campo | Valor |
 | --- | --- |
 | App/servico |  |
@@ -10,6 +13,7 @@
 | Dono |  |
 | Criado em |  |
 | Ultima validacao |  |
+| Modelo de exposicao |  |
 
 ## Beszel
 

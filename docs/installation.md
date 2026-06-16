@@ -19,7 +19,25 @@ Valores minimos:
 | `PRIVATE_CIDR` | `10.0.0.0/24` |
 | `REMOTE_HOSTS` | `vps-app=10.0.0.2` |
 
-## 2. Pre-requisitos no host central
+## 2. Modelo de exposicao
+
+Antes de instalar servicos ou abrir portas, escolha o modelo em
+[exposure-model.md](exposure-model.md).
+
+Registre no inventario qual cenario se aplica:
+
+| Topologia | Padrao |
+| --- | --- |
+| Homelab sem IP publico | Cloudflare Access + Cloudflare Tunnel. |
+| VPS com IP publico | Access sem Tunnel, DNS proxied e firewall de origem. |
+| VPS com rede privada do provedor | Reverse proxy publico + trafego interno por private IP. |
+| VPSs sem rede privada comum | Access para paineis + Tailscale para metricas internas. |
+| Hibrido | Entrada publica, private IP onde existir e Tailscale para cross-provider/admin. |
+
+Nao avance para DNS, firewall ou deploy enquanto o modelo de exposicao nao
+estiver definido.
+
+## 3. Pre-requisitos no host central
 
 ```bash
 apt-get update
@@ -36,7 +54,7 @@ docker network inspect dokploy-network >/dev/null
 Se nao usar Dokploy, remova `dokploy-network` dos exemplos ou substitua pelo
 nome da rede do seu reverse proxy.
 
-## 3. Obter este repo nos hosts
+## 4. Obter este repo nos hosts
 
 Em cada host que receber arquivos deste repo, clone ou atualize uma copia local:
 
@@ -53,7 +71,7 @@ cd "$REPO_DIR"
 
 Se voce publicou um fork, substitua a URL pelo fork.
 
-## 4. Rede privada ou Tailscale
+## 5. Rede privada ou Tailscale
 
 O Beszel Hub precisa conectar em cada Beszel Agent por TCP. Use uma destas
 opcoes:
@@ -112,7 +130,7 @@ nc -vz <remote-public-ip> 45876
 
 O primeiro comando deve funcionar. O segundo deve falhar.
 
-## 5. DNS e borda
+## 6. DNS e borda
 
 Crie dois FQDNs:
 
@@ -134,7 +152,7 @@ https://monitor.example.com/api/push/*
 Essa excecao deve existir somente porque a URL de push ja contem token. Se voce
 puder rotear push por rede privada, prefira rede privada.
 
-## 6. Segredos no host
+## 7. Segredos no host
 
 Crie arquivos remotos com permissao restrita:
 
@@ -148,7 +166,7 @@ install -m 0600 /dev/null /etc/observability-stack/backup.env
 Use [examples/env/central.env.example](../examples/env/central.env.example) como
 base. Nao copie valores reais para o Git.
 
-## 7. Deploy Uptime Kuma
+## 8. Deploy Uptime Kuma
 
 No host central:
 
@@ -171,7 +189,7 @@ docker ps --filter name=observability-uptime-kuma \
 Depois acesse `https://monitor.example.com`, crie o admin e configure pelo
 menos um canal de notificacao.
 
-## 8. Deploy Beszel Hub e agent local
+## 9. Deploy Beszel Hub e agent local
 
 No host central:
 
@@ -203,7 +221,7 @@ ufw allow proto tcp from 172.16.0.0/12 to any port 45876 \
 Ajuste a origem para o CIDR real da rede Docker se voce preferir ser mais
 restritivo.
 
-## 9. Deploy Beszel Agent remoto
+## 10. Deploy Beszel Agent remoto
 
 Em cada host remoto, crie env e compose:
 
@@ -230,17 +248,23 @@ docker compose --env-file /etc/observability-stack/remote-agent.env \
 
 Firewall no host remoto com private network do provedor:
 
+Antes de aplicar, remova regras antigas amplas/publicas para `45876/tcp`.
+
 ```bash
 ufw allow proto tcp from 10.0.0.1 to any port 45876 \
   comment "beszel agent from central host"
+ufw deny 45876/tcp
 ufw status numbered
 ```
 
 Firewall no host remoto com Tailscale:
 
+Antes de aplicar, remova regras antigas amplas/publicas para `45876/tcp`.
+
 ```bash
 ufw allow in on tailscale0 to any port 45876 proto tcp \
   comment "beszel agent over tailscale"
+ufw deny 45876/tcp
 ufw status numbered
 ```
 
@@ -258,7 +282,7 @@ nc -vz <public-ip-remoto> 45876
 
 O teste publico deve falhar.
 
-## 10. Configurar Beszel
+## 11. Configurar Beszel
 
 No painel `https://metrics.example.com`:
 
@@ -275,7 +299,7 @@ No painel `https://metrics.example.com`:
 | Memoria | `85%` | `5 min` |
 | Disco | `80%` | `5 min` |
 
-## 11. Configurar Uptime Kuma
+## 12. Configurar Uptime Kuma
 
 No painel `https://monitor.example.com`, crie:
 
@@ -287,7 +311,7 @@ No painel `https://monitor.example.com`, crie:
 
 Guarde as push URLs em arquivos `0600` no host alvo.
 
-## 12. Instalar timer de containers
+## 13. Instalar timer de containers
 
 No host onde os containers do app rodam:
 
@@ -323,7 +347,7 @@ Se o teste manual reportar UP no Uptime Kuma, habilite:
 systemctl enable --now observability-containers.timer
 ```
 
-## 13. Instalar timer de backup
+## 14. Instalar timer de backup
 
 No host que consegue ler o destino de backup:
 
@@ -357,23 +381,45 @@ Se o teste manual reportar UP no Uptime Kuma, habilite:
 systemctl enable --now observability-s3-backup.timer
 ```
 
-## 14. Aceite
+## 15. Aceite
 
 Antes de declarar a instalacao concluida:
 
 ```bash
+# Paineis: devem exigir Access, VPN, SSO ou gate equivalente.
 curl -skI https://monitor.example.com
 curl -skI https://metrics.example.com
+
+# Push: so deve bypassar login interativo se o bypass foi criado de proposito.
 curl -skI https://monitor.example.com/api/push/test
+
+# Origem publica: nao deve servir paineis direto pelo IP publico.
+curl -skI https://<public-vps-ip>
+curl -skI --resolve monitor.example.com:443:<public-vps-ip> \
+  https://monitor.example.com
+curl -skI --resolve metrics.example.com:443:<public-vps-ip> \
+  https://metrics.example.com
+
+# Metricas internas: devem funcionar apenas pelo caminho privado escolhido.
 nc -vz <remote-private-or-tailscale-ip> 45876
 nc -vz <remote-public-ip> 45876
+
 systemctl list-timers | grep observability
 ```
 
 Resultado esperado:
 
-- Uptime Kuma e Beszel acessiveis pelo dominio protegido.
-- `/api/push/*` responde sem exigir login interativo, se voce usa push externo.
+- Uptime Kuma e Beszel nao ficam anonimamente utilizaveis pelo dominio publico:
+  o acesso sem sessao deve cair em challenge/redirect/401 do Cloudflare Access,
+  recusa de VPN, ou gate de SSO equivalente.
+- Se push externo usa bypass, apenas `/api/push/*` responde sem login
+  interativo; outros paths de `monitor.example.com` continuam protegidos.
+- Se push bypass nao foi habilitado, `/api/push/*` tambem deve exigir o mesmo
+  gate dos demais paths.
+- Requisicoes diretas para `<public-vps-ip>` nao servem Uptime Kuma, Beszel Hub
+  nem outro painel administrativo.
+- Requisicoes diretas para a origem com `--resolve` falham por firewall, por
+  autenticacao de origem, ou nao servem paineis fora do caminho esperado.
 - Beszel ve todos os hosts.
 - Porta `45876` funciona por IP privado/Tailscale e falha por IP publico.
 - Uptime Kuma mostra HTTP/TLS, containers e backup como UP.

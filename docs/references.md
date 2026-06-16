@@ -29,12 +29,13 @@ Links para docs dos componentes usados pela stack.
 | Componente | Link |
 | --- | --- |
 | Cloudflare Access policies | https://developers.cloudflare.com/cloudflare-one/access-controls/policies/ |
+| Cloudflare Tunnel | https://developers.cloudflare.com/tunnel/ |
+| Cloudflare Tunnel config and ingress | https://developers.cloudflare.com/cloudflare-one/networks/connectors/cloudflare-tunnel/do-more-with-tunnels/local-management/configuration-file/ |
+| Cloudflare IP addresses | https://developers.cloudflare.com/fundamentals/concepts/cloudflare-ip-addresses/ |
 | Tailscale Linux install | https://tailscale.com/docs/install/linux |
 | Tailscale auth keys | https://tailscale.com/docs/features/access-control/auth-keys |
 | Tailscale ACLs | https://tailscale.com/docs/features/access-control/acls |
 | Tailscale with UFW | https://tailscale.com/docs/how-to/secure-ubuntu-server-with-ufw |
-| Contabo Private Networking | https://help.contabo.com/en/support/solutions/folders/103000621797 |
-| Contabo API Private Networking | https://api.contabo.com/ |
 | systemd service manual | https://www.freedesktop.org/software/systemd/man/latest/systemd.service.html |
 | systemd timer manual | https://www.freedesktop.org/software/systemd/man/latest/systemd.timer.html |
 

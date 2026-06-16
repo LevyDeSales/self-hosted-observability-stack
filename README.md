@@ -21,10 +21,12 @@ pedir: "instale esta stack no meu host".
 
 1. Leia [AGENTS.md](AGENTS.md) se voce for usar um agente de IA.
 2. Preencha o inventario em [docs/templates/host-inventory.md](docs/templates/host-inventory.md).
-3. Copie os exemplos de env em [examples/env](examples/env) e substitua os
+3. Escolha o modelo de exposicao em [docs/exposure-model.md](docs/exposure-model.md)
+   antes de abrir portas.
+4. Copie os exemplos de env em [examples/env](examples/env) e substitua os
    placeholders no servidor, nao no Git.
-4. Siga [docs/installation.md](docs/installation.md).
-5. Use [docs/operations.md](docs/operations.md) para validar e operar.
+5. Siga [docs/installation.md](docs/installation.md).
+6. Use [docs/operations.md](docs/operations.md) para validar e operar.
 
 ## Topologia
 
@@ -60,6 +62,7 @@ praticas:
 | --- | --- |
 | [AGENTS.md](AGENTS.md) | Instrucoes para agentes de IA instalarem a stack. |
 | [docs/architecture.md](docs/architecture.md) | Como os componentes se encaixam. |
+| [docs/exposure-model.md](docs/exposure-model.md) | Como escolher Access, Tunnel, rede privada do provedor e Tailscale. |
 | [docs/installation.md](docs/installation.md) | Guia de instalacao ponta a ponta. |
 | [docs/onboarding-targets.md](docs/onboarding-targets.md) | Como adicionar novas VPSs e apps. |
 | [docs/operations.md](docs/operations.md) | Validacao, operacao e troubleshooting. |
@@ -88,6 +91,7 @@ praticas:
 ## Principios
 
 - Segredo nunca entra no Git.
+- Modelo de exposicao vem antes de abrir portas ou publicar paineis.
 - Painel administrativo nao fica publico sem autenticacao forte.
 - Agente Beszel remoto escuta em IP privado ou VPN, nao na internet aberta.
 - Se as VPSs nao estiverem na mesma rede privada ou nem forem do mesmo

@@ -51,6 +51,7 @@ flowchart TB
 | Decisao | Motivo |
 | --- | --- |
 | Uptime Kuma recebe push de scripts customizados | Evita expor Docker API e permite checks especificos por app. |
+| Modelo de exposicao escolhido antes de abrir portas | Evita misturar Cloudflare Access, Tunnel, rede privada e Tailscale sem criterio. Veja [exposure-model.md](exposure-model.md). |
 | Beszel usa private IP ou VPN | O agent entrega metricas sensiveis; nao deve ficar publico. |
 | Tailscale e fallback para hosts sem private network comum | Mantem Beszel Agent fora da internet mesmo entre provedores diferentes. |
 | Timers systemd em vez de cron | Logs, status e enablement ficam padronizados via systemctl/journalctl. |
@@ -79,19 +80,14 @@ Cada app monitorado deve ter:
 - Push monitor de backup no Uptime Kuma, quando aplicavel.
 - Sistema no Beszel.
 
-## Quando usar Tailscale
+## Modelo de exposicao
 
-Use Tailscale quando:
+A decisao entre Cloudflare Access, Cloudflare Tunnel, rede privada do provedor
+e Tailscale fica em [exposure-model.md](exposure-model.md).
 
-- as VPSs nao estao na mesma private network do provedor;
-- os hosts estao em provedores diferentes;
-- o provedor nao oferece private network simples;
-- voce nao quer expor `45876/tcp` publicamente para o Beszel Agent.
+Resumo arquitetural:
 
-Padrao:
-
-- instalar Tailscale no host central e em cada host remoto monitorado;
-- registrar os servidores com auth keys ou login interativo;
-- usar os IPs Tailscale `100.x.y.z` como endereco dos Beszel Agents;
-- liberar `45876/tcp` somente pela interface `tailscale0`;
-- manter Uptime Kuma push por HTTPS, sem depender da VPN.
+- Cloudflare Access protege paineis web no edge.
+- Cloudflare Tunnel cria conectividade para origens sem entrada publica.
+- Rede privada do provedor e Tailscale carregam trafego interno de metricas.
+- Beszel Agent `45876/tcp` nunca deve depender da internet publica.

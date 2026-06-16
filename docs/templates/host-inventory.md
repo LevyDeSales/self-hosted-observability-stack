@@ -10,6 +10,18 @@
 | Reverse proxy/runtime |  |
 | Timezone |  |
 
+## Modelo de exposicao
+
+Leia [../exposure-model.md](../exposure-model.md) antes de preencher.
+
+| Campo | Valor |
+| --- | --- |
+| Topologia |  |
+| Modelo escolhido |  |
+| Entrada publica |  |
+| Trafego interno de metricas |  |
+| `45876/tcp` validado como fechado publicamente |  |
+
 ## Host central
 
 | Campo | Valor |

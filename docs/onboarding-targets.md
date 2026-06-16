@@ -5,6 +5,8 @@ criticos.
 
 ## Checklist
 
+- [ ] Modelo de exposicao escolhido em [exposure-model.md](exposure-model.md)
+  antes de abrir portas ou configurar Beszel Agent/firewall.
 - [ ] O host tem IP privado ou VPN ate o host central.
 - [ ] Se nao houver private network comum, Tailscale foi instalado no host central e no host remoto.
 - [ ] O Beszel Agent escuta somente em IP privado.
@@ -73,16 +75,22 @@ docker compose --env-file /etc/observability-stack/remote-agent.env \
 
 Firewall:
 
+Antes de aplicar, remova regras antigas amplas/publicas para `45876/tcp`.
+
 ```bash
 ufw allow proto tcp from 10.0.0.1 to any port 45876 \
   comment "beszel agent from central host"
+ufw deny 45876/tcp
 ```
 
 Firewall com Tailscale:
 
+Antes de aplicar, remova regras antigas amplas/publicas para `45876/tcp`.
+
 ```bash
 ufw allow in on tailscale0 to any port 45876 proto tcp \
   comment "beszel agent over tailscale"
+ufw deny 45876/tcp
 ```
 
 Aceite:
@@ -93,7 +101,8 @@ ssh <central-host> 'nc -vz <remote-tailscale-ip> 45876'
 nc -vz <public-ip> 45876
 ```
 
-O primeiro comando deve funcionar. O segundo deve falhar.
+Os checks por IP privado e por Tailscale devem funcionar quando esses caminhos
+forem usados. O check por IP publico deve falhar.
 
 ## Uptime HTTP/TLS
 
